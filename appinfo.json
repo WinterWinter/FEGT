@@ -1,0 +1,103 @@
+{
+    "appKeys": {
+        "KEY_ICON": 2,
+        "KEY_SCALE": 3,
+        "KEY_STEPSGOAL": 5,
+        "KEY_TEMPERATURE": 1
+    },
+    "capabilities": [
+        "location",
+        "configurable",
+        "health"
+    ],
+    "companyName": "Pebble",
+    "enableMultiJS": false,
+    "longName": "Tutorial-2-2",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/Battery Cover.png",
+                "name": "Battery_Cover",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/Tornado.png",
+                "name": "Tornado",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/Storm.png",
+                "name": "Storm",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/Snow.png",
+                "name": "Snow",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/RainSnow.png",
+                "name": "RainSnow",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/Rain.png",
+                "name": "Rain",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/OvercastDay.png",
+                "name": "OvercastDay",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/Cloudy.png",
+                "name": "Cloudy",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/ClearDay.png",
+                "name": "ClearDay",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "fonts/Solid.ttf",
+                "name": "Solid_40",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "file": "fonts/Outline.ttf",
+                "name": "Outline_40",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "file": "images/background.png",
+                "name": "IMAGE_BACKGROUND",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Tutorial-2-2",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "1fc6c9fa-a295-4516-9ec6-25daadd3c280",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
