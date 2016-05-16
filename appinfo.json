@@ -87,6 +87,66 @@
                 "name": "IMAGE_BACKGROUND",
                 "targetPlatforms": null,
                 "type": "bitmap"
+            },
+            {
+                "file": "images/10.png",
+                "name": "10",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/20.png",
+                "name": "20",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/30.png",
+                "name": "30",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/40.png",
+                "name": "40",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/50.png",
+                "name": "50",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/60.png",
+                "name": "60",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/70.png",
+                "name": "70",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/80.png",
+                "name": "80",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/90.png",
+                "name": "90",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/100.png",
+                "name": "100",
+                "targetPlatforms": null,
+                "type": "png"
             }
         ]
     },
