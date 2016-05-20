@@ -17,10 +17,16 @@
     "resources": {
         "media": [
             {
-                "file": "images/Battery Cover.png",
-                "name": "Battery_Cover",
+                "file": "images/0.png",
+                "name": "0",
                 "targetPlatforms": null,
                 "type": "png"
+            },
+            {
+                "file": "images/background.png",
+                "name": "IMAGE_BACKGROUND",
+                "targetPlatforms": null,
+                "type": "bitmap"
             },
             {
                 "file": "images/Tornado.png",
@@ -71,68 +77,8 @@
                 "type": "png"
             },
             {
-                "file": "fonts/Solid.ttf",
-                "name": "Solid_40",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "file": "fonts/Outline.ttf",
-                "name": "Outline_40",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "file": "images/background.png",
-                "name": "IMAGE_BACKGROUND",
-                "targetPlatforms": null,
-                "type": "bitmap"
-            },
-            {
-                "file": "images/10.png",
-                "name": "10",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/20.png",
-                "name": "20",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/30.png",
-                "name": "30",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/40.png",
-                "name": "40",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/50.png",
-                "name": "50",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/60.png",
-                "name": "60",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/70.png",
-                "name": "70",
-                "targetPlatforms": null,
-                "type": "png"
-            },
-            {
-                "file": "images/80.png",
-                "name": "80",
+                "file": "images/Battery Cover.png",
+                "name": "Battery_Cover",
                 "targetPlatforms": null,
                 "type": "png"
             },
@@ -143,10 +89,70 @@
                 "type": "png"
             },
             {
+                "file": "images/80.png",
+                "name": "80",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/70.png",
+                "name": "70",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/60.png",
+                "name": "60",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/50.png",
+                "name": "50",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/40.png",
+                "name": "40",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/30.png",
+                "name": "30",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "images/20.png",
+                "name": "20",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
                 "file": "images/100.png",
                 "name": "100",
                 "targetPlatforms": null,
                 "type": "png"
+            },
+            {
+                "file": "images/10.png",
+                "name": "10",
+                "targetPlatforms": null,
+                "type": "png"
+            },
+            {
+                "file": "fonts/Solid.ttf",
+                "name": "Solid_40",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "file": "fonts/Outline.ttf",
+                "name": "Outline_40",
+                "targetPlatforms": null,
+                "type": "font"
             }
         ]
     },

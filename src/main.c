@@ -11,8 +11,9 @@ static Window *s_main_window;
 static TextLayer *month_layer;
 static TextLayer *day_layer;
 static TextLayer *temperature_layer;
-static TextLayer *battery_layer;
+
 static TextLayer *step_layer;
+static TextLayer *text_battery_layer;
 static TextLayer *s_time_layer;
 static TextLayer *o_time_layer;
 
@@ -26,19 +27,20 @@ int step_percent;
 
 static Layer *step_bar;
 
-static uint8_t battery_level;
-static Layer *battery_bar;
-
-static char battery_buffer[32];
+static int battery_level;
+static Layer *battery_layer;
 
 static BitmapLayer *s_background_layer;
 static GBitmap *s_background_bitmap;
 
-static BitmapLayer *b_cover_layer;
-static GBitmap *b_cover_bitmap;
-
 static BitmapLayer *weather_layer;
 static GBitmap *weather_bitmap = NULL;
+
+static BitmapLayer *battery_life_layer;
+static GBitmap *battery_life_bitmap = NULL;
+
+static BitmapLayer *step_life_layer;
+static GBitmap *step_life_bitmap = NULL;
 
 static const uint32_t WEATHER_ICONS[] = {
   RESOURCE_ID_ClearDay, //0
@@ -50,6 +52,21 @@ static const uint32_t WEATHER_ICONS[] = {
   RESOURCE_ID_Storm, //6
   RESOURCE_ID_Tornado, //7
 };
+
+static const uint32_t LIFE_ICONS[] = {
+  RESOURCE_ID_0,
+  RESOURCE_ID_10,  
+  RESOURCE_ID_20,  
+  RESOURCE_ID_30,  
+  RESOURCE_ID_40,  
+  RESOURCE_ID_50,  
+  RESOURCE_ID_60,  
+  RESOURCE_ID_70,  
+  RESOURCE_ID_80,  
+  RESOURCE_ID_90,  
+  RESOURCE_ID_100, 
+};
+
 
 static void update_time() {
   // Get a tm structure
@@ -213,40 +230,25 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context)
   //APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
-void handle_battery(BatteryChargeState charge) 
-{
-	battery_level = charge.charge_percent;
-  layer_mark_dirty(battery_bar);
-}
-
-void battery_layer_update_callback(Layer *layer, GContext *ctx) 
-{
-  graphics_context_set_compositing_mode(ctx, GCompOpAssign);
-  GColor8 batteryColor = GColorGreen;
-  graphics_context_set_stroke_color(ctx, batteryColor);
-  graphics_context_set_fill_color(ctx,  batteryColor);
-  graphics_fill_rect(ctx, GRect(0, 0, (uint8_t)(battery_level)/3, 11), 0, GCornerNone);
-  
-  snprintf(battery_buffer, sizeof(battery_buffer), "%d", battery_level);
-  text_layer_set_text(battery_layer, battery_buffer);
-}
-
-static void load_battery_bar(Layer *window_layer)
-{
-  BatteryChargeState initial = battery_state_service_peek();
- 	battery_level = initial.charge_percent;
- 	battery_bar = layer_create(GRect(106, 149, 33, 11));
- 	layer_set_update_proc(battery_bar, &battery_layer_update_callback);
-  layer_add_child(window_layer, battery_bar);
-}
-
 void step_layer_update_callback(Layer *layer, GContext *ctx) 
-{
-  graphics_context_set_compositing_mode(ctx, GCompOpAssign);
-  GColor8 stepColor = GColorGreen;
-  graphics_context_set_stroke_color(ctx, stepColor);
-  graphics_context_set_fill_color(ctx,  stepColor);
-  graphics_fill_rect(ctx, GRect(0, 0, (uint8_t)(step_percent)/3, 11), 0, GCornerNone);
+{  
+  if (step_life_bitmap) {
+    gbitmap_destroy(step_life_bitmap);
+  }
+  
+   if(step_percent < 10) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[0]);}
+   else if(step_percent >= 10 && step_percent < 20) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[1]);}
+   else if(step_percent >= 20 && step_percent < 30) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[2]);} 
+   else if(step_percent >= 30 && step_percent < 40) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[3]);}
+   else if(step_percent >= 40 && step_percent < 50) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[4]);}
+   else if(step_percent >= 50 && step_percent < 60) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[5]);}
+   else if(step_percent >= 60 && step_percent < 70) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[6]);}
+   else if(step_percent >= 70 && step_percent < 80) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[7]);}
+   else if(step_percent >= 80 && step_percent < 90) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[8]);}
+   else if(step_percent >= 90 && step_percent < 100) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[9]);}
+   else if(step_percent == 100) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[10]);}
+
+   bitmap_layer_set_bitmap(step_life_layer, step_life_bitmap);
 }
 
 static void load_step_bar(Layer *window_layer)
@@ -254,6 +256,36 @@ static void load_step_bar(Layer *window_layer)
  	step_bar = layer_create(GRect(34, 149, 33, 11));
  	layer_set_update_proc(step_bar, &step_layer_update_callback);
   layer_add_child(window_layer, step_bar);
+}
+
+
+static void battery_callback(BatteryChargeState state) {
+  battery_level = state.charge_percent;
+  layer_mark_dirty(battery_layer);
+}
+
+static void battery_update_proc(Layer *layer, GContext *ctx) {
+  
+  static char battery_buffer[32];
+  snprintf(battery_buffer, sizeof(battery_buffer), "%d", battery_level);
+  text_layer_set_text(text_battery_layer, battery_buffer);
+  
+  if (battery_life_bitmap) {
+    gbitmap_destroy(battery_life_bitmap);}
+  
+   if(battery_level < 10) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[0]);}
+   else if(battery_level >= 10 && battery_level < 20) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[1]);}
+   else if(battery_level >= 20 && battery_level < 30) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[2]);} 
+   else if(battery_level >= 30 && battery_level < 40) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[3]);}
+   else if(battery_level >= 40 && battery_level < 50) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[4]);}
+   else if(battery_level >= 50 && battery_level < 60) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[5]);}
+   else if(battery_level >= 60 && battery_level < 70) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[6]);}
+   else if(battery_level >= 70 && battery_level < 80) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[7]);}
+   else if(battery_level >= 80 && battery_level < 90) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[8]);}
+   else if(battery_level >= 80 && battery_level < 100) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[9]);}
+   else if(battery_level == 100) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[10]);}
+
+   bitmap_layer_set_bitmap(battery_life_layer, battery_life_bitmap);
 }
 
 static void main_window_load(Window *window) {
@@ -277,9 +309,12 @@ static void main_window_load(Window *window) {
   month_layer = text_layer_create(GRect(0,1,54,30));
   day_layer = text_layer_create(GRect(92,2,54,25));
   temperature_layer = text_layer_create(GRect(104,112,40,25));
-  battery_layer = text_layer_create(GRect(74,138,30,25));
   step_layer = text_layer_create(GRect(-3,138,40,25));
+  text_battery_layer = text_layer_create(GRect(69,138,40,25));
   weather_layer = bitmap_layer_create(GRect(2, 117, 37, 23));
+  
+  battery_life_layer = bitmap_layer_create(GRect(106, 149, 33, 11));
+  step_life_layer = bitmap_layer_create(GRect(34, 149, 33, 11));
   
   //Time
   text_layer_set_background_color(s_time_layer, GColorClear);
@@ -303,7 +338,6 @@ static void main_window_load(Window *window) {
   text_layer_set_text_color(day_layer, GColorWhite);
   text_layer_set_text_alignment(day_layer, GTextAlignmentCenter);
   
-  
   //Temperature
   text_layer_set_background_color(temperature_layer, GColorClear);
   text_layer_set_text_color(temperature_layer, GColorWhite);
@@ -311,23 +345,17 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(temperature_layer, GTextAlignmentCenter);
   
   //Battery
-  b_cover_bitmap = gbitmap_create_with_resource(RESOURCE_ID_Battery_Cover);
-  b_cover_layer = bitmap_layer_create(GRect(34, 149, 105, 11));
-  bitmap_layer_set_bitmap(b_cover_layer, b_cover_bitmap);
-  bitmap_layer_set_compositing_mode(b_cover_layer, GCompOpSet);
+  battery_layer = layer_create(GRect(106, 149, 33, 11));
+  layer_set_update_proc(battery_layer, battery_update_proc);
   
-  load_battery_bar(window_layer);
-  
-  snprintf(battery_buffer, sizeof(battery_buffer), "%d", battery_level);
-  text_layer_set_text(battery_layer, battery_buffer);
-  text_layer_set_background_color(battery_layer, GColorClear);
-  text_layer_set_text_color(battery_layer, GColorWhite);
-  text_layer_set_text_alignment(battery_layer, GTextAlignmentCenter);
-  
-  //Step
+  //Battery Text
+  text_layer_set_background_color(text_battery_layer, GColorClear);
+  text_layer_set_text_color(text_battery_layer, GColorWhite);
+  text_layer_set_text_alignment(text_battery_layer, GTextAlignmentCenter);
+ 
+  //Step Text
   text_layer_set_background_color(step_layer, GColorClear);
   text_layer_set_text_color(step_layer, GColorWhite);
-  text_layer_set_text(step_layer, "---");
   text_layer_set_text_alignment(step_layer, GTextAlignmentCenter);
   
   load_step_bar(window_layer);
@@ -343,8 +371,11 @@ static void main_window_load(Window *window) {
   text_layer_set_font(month_layer, all_font);
   text_layer_set_font(day_layer, all_font);
   text_layer_set_font(temperature_layer, all_font);
-  text_layer_set_font(battery_layer, all_font);
+  text_layer_set_font(text_battery_layer, all_font);
   text_layer_set_font(step_layer, all_font);
+  
+  layer_add_child(window_layer, bitmap_layer_get_layer(battery_life_layer));
+  layer_add_child(window_layer, bitmap_layer_get_layer(step_life_layer));
 
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
@@ -353,9 +384,9 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(day_layer));
   layer_add_child(window_layer, text_layer_get_layer(temperature_layer));
   layer_add_child(window_layer, bitmap_layer_get_layer(weather_layer));
-  layer_add_child(window_layer, text_layer_get_layer(battery_layer));
-  layer_add_child(window_layer, bitmap_layer_get_layer(b_cover_layer));
+  layer_add_child(window_get_root_layer(window), battery_layer);
   layer_add_child(window_layer, text_layer_get_layer(step_layer));
+  layer_add_child(window_layer, text_layer_get_layer(text_battery_layer));
 }
 
 static void main_window_unload(Window *window) {
@@ -366,7 +397,8 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(day_layer);
   text_layer_destroy(temperature_layer);
   text_layer_destroy(step_layer);
-  text_layer_destroy(battery_layer);
+  
+  layer_destroy(battery_layer);
 
   // Unload GFont
   fonts_unload_custom_font(s_time_font);
@@ -399,7 +431,10 @@ static void init() {
   
   health_service_events_subscribe(handle_health, NULL);
   
-  battery_state_service_subscribe (&handle_battery);
+  // Register for battery level updates
+  battery_state_service_subscribe(battery_callback);
+  // Ensure battery level is displayed from the start
+  battery_callback(battery_state_service_peek());
 
   // Make sure the time is displayed from the start
   update_time();
