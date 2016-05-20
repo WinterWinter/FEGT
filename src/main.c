@@ -42,6 +42,10 @@ static GBitmap *battery_life_bitmap = NULL;
 static BitmapLayer *step_life_layer;
 static GBitmap *step_life_bitmap = NULL;
 
+int current_frame, starting_frame;
+int ending_frame;
+int delay;//delay between each frame is in milliseconds
+
 static const uint32_t WEATHER_ICONS[] = {
   RESOURCE_ID_ClearDay, //0
   RESOURCE_ID_Cloudy, //1
@@ -66,6 +70,196 @@ static const uint32_t LIFE_ICONS[] = {
   RESOURCE_ID_90,  
   RESOURCE_ID_100, 
 };
+
+#define TOTAL_KIRBY 2
+static GBitmap *kirby_images[TOTAL_KIRBY];
+static BitmapLayer *kirby_layers[TOTAL_KIRBY];
+
+const int animation_frames[] = {  
+RESOURCE_ID_Eli1,
+RESOURCE_ID_Eli2,
+RESOURCE_ID_Eli3,
+RESOURCE_ID_Eli4,
+RESOURCE_ID_Eli5,
+RESOURCE_ID_Eli6,
+RESOURCE_ID_Eli7,
+RESOURCE_ID_Eli8,
+RESOURCE_ID_Eli9,
+RESOURCE_ID_Eli10,
+RESOURCE_ID_Eli11,
+RESOURCE_ID_Eli12,
+RESOURCE_ID_Eli13,
+RESOURCE_ID_Eli14,
+RESOURCE_ID_Eli15,
+RESOURCE_ID_Eli16,
+RESOURCE_ID_Eli17,
+RESOURCE_ID_Eli18,
+RESOURCE_ID_Eli19,
+RESOURCE_ID_Eli20,
+RESOURCE_ID_Eli21,
+RESOURCE_ID_Eli22,
+RESOURCE_ID_Eli23,
+RESOURCE_ID_Eli24,
+RESOURCE_ID_Eli25,
+RESOURCE_ID_Eli26,
+RESOURCE_ID_Eli27,
+RESOURCE_ID_Eli28,
+RESOURCE_ID_Eli29,
+RESOURCE_ID_Eli30,
+RESOURCE_ID_Eli31,
+RESOURCE_ID_Eli32,
+RESOURCE_ID_Eli33,
+RESOURCE_ID_Eli34,
+RESOURCE_ID_Eli35,
+RESOURCE_ID_Eli36,
+RESOURCE_ID_Eli37,
+RESOURCE_ID_Eli38,
+RESOURCE_ID_Eli39,
+RESOURCE_ID_Eli40,
+RESOURCE_ID_Eli41,
+RESOURCE_ID_Eli42,
+RESOURCE_ID_Eli43,
+RESOURCE_ID_Eli44,
+RESOURCE_ID_Eli45,
+RESOURCE_ID_Eli46,
+RESOURCE_ID_Eli47,
+RESOURCE_ID_Eli48,
+RESOURCE_ID_Eli49,
+RESOURCE_ID_Eli50,
+RESOURCE_ID_Eli51,
+RESOURCE_ID_Eli52,
+RESOURCE_ID_Eli53,
+RESOURCE_ID_Eli54,
+RESOURCE_ID_Eli55,
+RESOURCE_ID_Eli56,
+RESOURCE_ID_Eli57,
+RESOURCE_ID_Eli58,
+RESOURCE_ID_Eli59,
+RESOURCE_ID_Eli60,
+RESOURCE_ID_Eli61,
+RESOURCE_ID_Eli62,
+RESOURCE_ID_Eli63,
+RESOURCE_ID_Eli64,
+RESOURCE_ID_Eli65,
+RESOURCE_ID_Eli66,
+RESOURCE_ID_Eli67,
+RESOURCE_ID_Eli68,
+RESOURCE_ID_Eli69,
+RESOURCE_ID_Eli70,
+
+RESOURCE_ID_LYN00,
+RESOURCE_ID_LYN01,
+RESOURCE_ID_LYN02,
+RESOURCE_ID_LYN03,
+RESOURCE_ID_LYN04,
+RESOURCE_ID_LYN05,
+RESOURCE_ID_LYN06,
+RESOURCE_ID_LYN07,
+RESOURCE_ID_LYN08,
+RESOURCE_ID_LYN09,
+RESOURCE_ID_LYN10,
+RESOURCE_ID_LYN11,
+RESOURCE_ID_LYN12,
+RESOURCE_ID_LYN13,
+RESOURCE_ID_LYN14,
+RESOURCE_ID_LYN15,
+RESOURCE_ID_LYN16,
+RESOURCE_ID_LYN17,
+RESOURCE_ID_LYN18,
+RESOURCE_ID_LYN19,
+RESOURCE_ID_LYN20,
+RESOURCE_ID_LYN21,
+RESOURCE_ID_LYN22,
+RESOURCE_ID_LYN23,
+RESOURCE_ID_LYN24,
+RESOURCE_ID_LYN25,
+RESOURCE_ID_LYN26,
+RESOURCE_ID_LYN27,
+RESOURCE_ID_LYN28,
+RESOURCE_ID_LYN29,
+RESOURCE_ID_LYN30,
+RESOURCE_ID_LYN31,
+RESOURCE_ID_LYN32,
+RESOURCE_ID_LYN33,
+RESOURCE_ID_LYN34,
+RESOURCE_ID_LYN35,
+RESOURCE_ID_LYN36,
+RESOURCE_ID_LYN37,
+RESOURCE_ID_LYN38,
+RESOURCE_ID_LYN39,
+RESOURCE_ID_LYN40,
+RESOURCE_ID_LYN41,
+RESOURCE_ID_LYN42,
+RESOURCE_ID_LYN43,
+RESOURCE_ID_LYN44,
+RESOURCE_ID_LYN45,
+RESOURCE_ID_LYN46,
+RESOURCE_ID_LYN47,
+RESOURCE_ID_LYN48,
+RESOURCE_ID_LYN49,
+RESOURCE_ID_LYN50,
+RESOURCE_ID_LYN51,
+RESOURCE_ID_LYN52,
+RESOURCE_ID_LYN53,
+RESOURCE_ID_LYN54,
+RESOURCE_ID_LYN55,
+RESOURCE_ID_LYN56,
+RESOURCE_ID_LYN57,
+RESOURCE_ID_LYN58,
+RESOURCE_ID_LYN59,
+};
+
+static void set_container_image(GBitmap **bmp_image, BitmapLayer *bmp_layer, const int resource_id, GPoint origin) 
+{
+GBitmap *old_image = *bmp_image;
+
+ 	*bmp_image = gbitmap_create_with_resource(resource_id);
+ 	GRect frame = (GRect) {
+   	.origin = origin,
+    .size = gbitmap_get_bounds(*bmp_image).size 
+};
+ 	bitmap_layer_set_bitmap(bmp_layer, *bmp_image);
+ 	layer_set_frame(bitmap_layer_get_layer(bmp_layer), frame);
+
+ 	if (old_image != NULL) {
+ 	gbitmap_destroy(old_image);
+  }
+}
+
+static void timer_handler(void *context) 
+{
+  if(current_frame < ending_frame){
+    if(current_frame == ending_frame){
+     current_frame = starting_frame;
+    }
+    if (kirby_images[1] != NULL) {
+      gbitmap_destroy(kirby_images[1]);
+      kirby_images[1] = NULL;
+    }
+    
+    kirby_images[1] = gbitmap_create_with_resource(animation_frames[current_frame]);
+    
+    bitmap_layer_set_bitmap(kirby_layers[1], kirby_images[1]);
+    layer_mark_dirty(bitmap_layer_get_layer(kirby_layers[1]));
+
+    current_frame++;
+    app_timer_register(delay, timer_handler, NULL);
+  } 
+}
+
+static void load_sequence() 
+{
+  current_frame = 0;
+  ending_frame = 70;
+  delay = 77;
+  starting_frame = current_frame;
+  app_timer_register(1, timer_handler, NULL);
+}
+
+static void load_kirby_layer()
+{ 
+   set_container_image(&kirby_images[1], kirby_layers[1], animation_frames[0], GPoint(20,20) );
+}
 
 
 static void update_time() {
@@ -359,6 +553,18 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(step_layer, GTextAlignmentCenter);
   
   load_step_bar(window_layer);
+  
+  GRect dummy_frame = { {0, 0}, {0, 0} };
+  
+    for (int i = 0; i < TOTAL_KIRBY; ++i) {
+   	kirby_layers[i] = bitmap_layer_create(dummy_frame);
+   	layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(kirby_layers[i]));
+    bitmap_layer_set_compositing_mode(kirby_layers[i], GCompOpSet);
+    }
+  
+  
+  load_sequence();
+  load_kirby_layer();
 
   // Create GFont
   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_Solid_40));
@@ -426,6 +632,7 @@ static void init() {
     .unload = main_window_unload
   });
 
+  
   // Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true);
   
