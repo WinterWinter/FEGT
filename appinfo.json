@@ -923,6 +923,210 @@
                 "type": "png"
             },
             {
+"file": "Hector00",
+"name": "Hector00",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector01",
+"name": "Hector01",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector02",
+"name": "Hector02",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector03",
+"name": "Hector03",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector04",
+"name": "Hector04",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector05",
+"name": "Hector05",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector06",
+"name": "Hector06",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector07",
+"name": "Hector07",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector08",
+"name": "Hector08",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector09",
+"name": "Hector09",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector10",
+"name": "Hector10",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector11",
+"name": "Hector11",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector12",
+"name": "Hector12",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector13",
+"name": "Hector13",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector14",
+"name": "Hector14",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector15",
+"name": "Hector15",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector16",
+"name": "Hector16",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector17",
+"name": "Hector17",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector18",
+"name": "Hector18",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector19",
+"name": "Hector19",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector20",
+"name": "Hector20",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector21",
+"name": "Hector21",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector22",
+"name": "Hector22",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector23",
+"name": "Hector23",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector24",
+"name": "Hector24",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector25",
+"name": "Hector25",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector26",
+"name": "Hector26",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector27",
+"name": "Hector27",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector28",
+"name": "Hector28",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector29",
+"name": "Hector29",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector30",
+"name": "Hector30",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector31",
+"name": "Hector31",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector32",
+"name": "Hector32",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "Hector33",
+"name": "Hector33",
+"targetPlatforms": null,
+"type": "png"
+},
+            {
                 "file": "fonts/Solid.ttf",
                 "name": "Solid_40",
                 "targetPlatforms": null,
