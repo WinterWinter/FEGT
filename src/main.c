@@ -36,15 +36,18 @@ static GBitmap *s_background_bitmap;
 static BitmapLayer *weather_layer;
 static GBitmap *weather_bitmap = NULL;
 
-static BitmapLayer *battery_life_layer;
-static GBitmap *battery_life_bitmap = NULL;
-
-static BitmapLayer *step_life_layer;
-static GBitmap *step_life_bitmap = NULL;
 
 int current_frame, starting_frame;
 int ending_frame;
 int delay;//delay between each frame is in milliseconds
+
+
+#define TOTAL_LIFE 11
+static GBitmap *life_images[TOTAL_LIFE];
+static BitmapLayer *life_layers[TOTAL_LIFE];
+
+static GBitmap *step_images[TOTAL_LIFE];
+static BitmapLayer *step_layers[TOTAL_LIFE];
 
 static const uint32_t WEATHER_ICONS[] = {
   RESOURCE_ID_ClearDay, //0
@@ -145,9 +148,9 @@ RESOURCE_ID_Eli66,
 RESOURCE_ID_Eli67,
 RESOURCE_ID_Eli68,
 RESOURCE_ID_Eli69,
-RESOURCE_ID_Eli70,
+RESOURCE_ID_Eli70, //69
 
-RESOURCE_ID_LYN00,
+RESOURCE_ID_LYN00, //70
 RESOURCE_ID_LYN01,
 RESOURCE_ID_LYN02,
 RESOURCE_ID_LYN03,
@@ -206,25 +209,9 @@ RESOURCE_ID_LYN55,
 RESOURCE_ID_LYN56,
 RESOURCE_ID_LYN57,
 RESOURCE_ID_LYN58,
-RESOURCE_ID_LYN59,
+RESOURCE_ID_LYN59, //129
 };
 
-static void set_container_image(GBitmap **bmp_image, BitmapLayer *bmp_layer, const int resource_id, GPoint origin) 
-{
-GBitmap *old_image = *bmp_image;
-
- 	*bmp_image = gbitmap_create_with_resource(resource_id);
- 	GRect frame = (GRect) {
-   	.origin = origin,
-    .size = gbitmap_get_bounds(*bmp_image).size 
-};
- 	bitmap_layer_set_bitmap(bmp_layer, *bmp_image);
- 	layer_set_frame(bitmap_layer_get_layer(bmp_layer), frame);
-
- 	if (old_image != NULL) {
- 	gbitmap_destroy(old_image);
-  }
-}
 
 static void timer_handler(void *context) 
 {
@@ -256,11 +243,27 @@ static void load_sequence()
   app_timer_register(1, timer_handler, NULL);
 }
 
+static void set_container_image(GBitmap **bmp_image, BitmapLayer *bmp_layer, const int resource_id, GPoint origin) 
+{
+GBitmap *old_image = *bmp_image;
+
+ 	*bmp_image = gbitmap_create_with_resource(resource_id);
+ 	GRect frame = (GRect) {
+   	.origin = origin,
+    .size = gbitmap_get_bounds(*bmp_image).size 
+};
+ 	bitmap_layer_set_bitmap(bmp_layer, *bmp_image);
+ 	layer_set_frame(bitmap_layer_get_layer(bmp_layer), frame);
+
+ 	if (old_image != NULL) {
+ 	gbitmap_destroy(old_image);
+  }
+}
+
 static void load_kirby_layer()
 { 
    set_container_image(&kirby_images[1], kirby_layers[1], animation_frames[0], GPoint(20,20) );
 }
-
 
 static void update_time() {
   // Get a tm structure
@@ -310,6 +313,7 @@ static void handle_health(HealthEventType event, void *context)
 	HealthServiceAccessibilityMask mask = health_service_metric_accessible(HealthMetricStepCount, start, end);
   static char percent_buffer[32];
   
+  layer_mark_dirty(step_bar);
 		
 		if (mask & HealthServiceAccessibilityMaskAvailable) {
 				//APP_LOG(APP_LOG_LEVEL_INFO, "Step data available!");
@@ -425,33 +429,19 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context)
 }
 
 void step_layer_update_callback(Layer *layer, GContext *ctx) 
-{  
-  if (step_life_bitmap) {
-    gbitmap_destroy(step_life_bitmap);
-  }
-  
-   if(step_percent < 10) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[0]);}
-   else if(step_percent >= 10 && step_percent < 20) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[1]);}
-   else if(step_percent >= 20 && step_percent < 30) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[2]);} 
-   else if(step_percent >= 30 && step_percent < 40) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[3]);}
-   else if(step_percent >= 40 && step_percent < 50) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[4]);}
-   else if(step_percent >= 50 && step_percent < 60) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[5]);}
-   else if(step_percent >= 60 && step_percent < 70) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[6]);}
-   else if(step_percent >= 70 && step_percent < 80) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[7]);}
-   else if(step_percent >= 80 && step_percent < 90) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[8]);}
-   else if(step_percent >= 90 && step_percent < 100) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[9]);}
-   else if(step_percent == 100) {step_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[10]);}
-
-   bitmap_layer_set_bitmap(step_life_layer, step_life_bitmap);
+{   
+   if(step_percent < 10) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[0], GPoint(34, 149));}
+   else if(step_percent >= 10 && step_percent < 20) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[1], GPoint(34, 149));}
+   else if(step_percent >= 20 && step_percent < 30) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[2], GPoint(34, 149));} 
+   else if(step_percent >= 30 && step_percent < 40) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[3], GPoint(34, 149));}
+   else if(step_percent >= 40 && step_percent < 50) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[4], GPoint(34, 149));}
+   else if(step_percent >= 50 && step_percent < 60) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[5], GPoint(34, 149));}
+   else if(step_percent >= 60 && step_percent < 70) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[6], GPoint(34, 149));}
+   else if(step_percent >= 70 && step_percent < 80) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[7], GPoint(34, 149));}
+   else if(step_percent >= 80 && step_percent < 90) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[8], GPoint(34, 149));}
+   else if(step_percent >= 90 && step_percent < 100) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[9], GPoint(34, 149));}
+   else if(step_percent >= 100) {set_container_image(&step_images[0], step_layers[0], LIFE_ICONS[10], GPoint(34, 149));}
 }
-
-static void load_step_bar(Layer *window_layer)
-{
- 	step_bar = layer_create(GRect(34, 149, 33, 11));
- 	layer_set_update_proc(step_bar, &step_layer_update_callback);
-  layer_add_child(window_layer, step_bar);
-}
-
 
 static void battery_callback(BatteryChargeState state) {
   battery_level = state.charge_percent;
@@ -464,22 +454,18 @@ static void battery_update_proc(Layer *layer, GContext *ctx) {
   snprintf(battery_buffer, sizeof(battery_buffer), "%d", battery_level);
   text_layer_set_text(text_battery_layer, battery_buffer);
   
-  if (battery_life_bitmap) {
-    gbitmap_destroy(battery_life_bitmap);}
+  if(battery_level < 10) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[0], GPoint(106, 149));}
+   else if(battery_level >= 10 && battery_level < 20) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[1], GPoint(106, 149));}
+   else if(battery_level >= 20 && battery_level < 30) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[2], GPoint(106, 149));} 
+   else if(battery_level >= 30 && battery_level < 40) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[3], GPoint(106, 149));}
+   else if(battery_level >= 40 && battery_level < 50) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[4], GPoint(106, 149));}
+   else if(battery_level >= 50 && battery_level < 60) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[5], GPoint(106, 149));}
+   else if(battery_level >= 60 && battery_level < 70) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[6], GPoint(106, 149));}
+   else if(battery_level >= 70 && battery_level < 80) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[7], GPoint(106, 149));}
+   else if(battery_level >= 80 && battery_level < 90) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[8], GPoint(106, 149));}
+   else if(battery_level >= 90 && battery_level < 100) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[9], GPoint(106, 149));}
+   else if(battery_level == 100) {set_container_image(&life_images[0], life_layers[0], LIFE_ICONS[10], GPoint(106, 149));}
   
-   if(battery_level < 10) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[0]);}
-   else if(battery_level >= 10 && battery_level < 20) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[1]);}
-   else if(battery_level >= 20 && battery_level < 30) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[2]);} 
-   else if(battery_level >= 30 && battery_level < 40) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[3]);}
-   else if(battery_level >= 40 && battery_level < 50) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[4]);}
-   else if(battery_level >= 50 && battery_level < 60) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[5]);}
-   else if(battery_level >= 60 && battery_level < 70) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[6]);}
-   else if(battery_level >= 70 && battery_level < 80) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[7]);}
-   else if(battery_level >= 80 && battery_level < 90) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[8]);}
-   else if(battery_level >= 80 && battery_level < 100) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[9]);}
-   else if(battery_level == 100) {battery_life_bitmap = gbitmap_create_with_resource(LIFE_ICONS[10]);}
-
-   bitmap_layer_set_bitmap(battery_life_layer, battery_life_bitmap);
 }
 
 static void main_window_load(Window *window) {
@@ -506,9 +492,6 @@ static void main_window_load(Window *window) {
   step_layer = text_layer_create(GRect(-3,138,40,25));
   text_battery_layer = text_layer_create(GRect(69,138,40,25));
   weather_layer = bitmap_layer_create(GRect(2, 117, 37, 23));
-  
-  battery_life_layer = bitmap_layer_create(GRect(106, 149, 33, 11));
-  step_life_layer = bitmap_layer_create(GRect(34, 149, 33, 11));
   
   //Time
   text_layer_set_background_color(s_time_layer, GColorClear);
@@ -538,9 +521,13 @@ static void main_window_load(Window *window) {
   text_layer_set_text(temperature_layer, "----");
   text_layer_set_text_alignment(temperature_layer, GTextAlignmentCenter);
   
-  //Battery
+  //Battery Bar
   battery_layer = layer_create(GRect(106, 149, 33, 11));
   layer_set_update_proc(battery_layer, battery_update_proc);
+  
+  //Step Bar
+  step_bar = layer_create(GRect(34, 149, 33, 11));
+  layer_set_update_proc(step_bar, &step_layer_update_callback);
   
   //Battery Text
   text_layer_set_background_color(text_battery_layer, GColorClear);
@@ -551,18 +538,16 @@ static void main_window_load(Window *window) {
   text_layer_set_background_color(step_layer, GColorClear);
   text_layer_set_text_color(step_layer, GColorWhite);
   text_layer_set_text_alignment(step_layer, GTextAlignmentCenter);
-  
-  load_step_bar(window_layer);
-  
+
+ 
   GRect dummy_frame = { {0, 0}, {0, 0} };
   
-    for (int i = 0; i < TOTAL_KIRBY; ++i) {
+  for (int i = 0; i < TOTAL_KIRBY; ++i) {
    	kirby_layers[i] = bitmap_layer_create(dummy_frame);
    	layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(kirby_layers[i]));
     bitmap_layer_set_compositing_mode(kirby_layers[i], GCompOpSet);
-    }
-  
-  
+  }
+   
   load_sequence();
   load_kirby_layer();
 
@@ -579,9 +564,6 @@ static void main_window_load(Window *window) {
   text_layer_set_font(temperature_layer, all_font);
   text_layer_set_font(text_battery_layer, all_font);
   text_layer_set_font(step_layer, all_font);
-  
-  layer_add_child(window_layer, bitmap_layer_get_layer(battery_life_layer));
-  layer_add_child(window_layer, bitmap_layer_get_layer(step_life_layer));
 
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
@@ -590,7 +572,8 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(day_layer));
   layer_add_child(window_layer, text_layer_get_layer(temperature_layer));
   layer_add_child(window_layer, bitmap_layer_get_layer(weather_layer));
-  layer_add_child(window_get_root_layer(window), battery_layer);
+  layer_add_child(window_layer, battery_layer);
+  layer_add_child(window_layer, step_bar);
   layer_add_child(window_layer, text_layer_get_layer(step_layer));
   layer_add_child(window_layer, text_layer_get_layer(text_battery_layer));
 }
@@ -616,12 +599,32 @@ static void main_window_unload(Window *window) {
 
   // Destroy BitmapLayer
   bitmap_layer_destroy(s_background_layer);
+  
+  for (int i = 0; i < TOTAL_KIRBY; i++) {
+   	layer_remove_from_parent(bitmap_layer_get_layer(kirby_layers[i]));
+   	gbitmap_destroy(kirby_images[i]);
+   	bitmap_layer_destroy(kirby_layers[i]); 
+  }
+  
+  for (int i = 0; i < TOTAL_LIFE; i++) {
+   	layer_remove_from_parent(bitmap_layer_get_layer(life_layers[i]));
+   	gbitmap_destroy(life_images[i]);
+   	bitmap_layer_destroy(life_layers[i]); 
+  }
+  
+   for (int i = 0; i < TOTAL_LIFE; i++) {
+   	layer_remove_from_parent(bitmap_layer_get_layer(step_layers[i]));
+   	gbitmap_destroy(step_images[i]);
+   	bitmap_layer_destroy(step_layers[i]); 
+  }
 }
 
 
 static void init() {
   // Create main Window element and assign to pointer
   s_main_window = window_create();
+  
+  Layer *window_layer = window_get_root_layer(s_main_window);
 
   // Set the background color
   window_set_background_color(s_main_window, GColorBlack);
@@ -642,7 +645,19 @@ static void init() {
   battery_state_service_subscribe(battery_callback);
   // Ensure battery level is displayed from the start
   battery_callback(battery_state_service_peek());
+  
+  GRect dummy_frame = { {0, 0}, {0, 0} };
 
+  for (int i = 0; i < TOTAL_LIFE; ++i) {
+   	life_layers[i] = bitmap_layer_create(dummy_frame);
+   	layer_add_child(window_layer, bitmap_layer_get_layer(life_layers[i]));
+  }
+  
+  for (int i = 0; i < TOTAL_LIFE; ++i) {
+   	step_layers[i] = bitmap_layer_create(dummy_frame);
+   	layer_add_child(window_layer, bitmap_layer_get_layer(step_layers[i]));
+  }
+  
   // Make sure the time is displayed from the start
   update_time();
 
@@ -662,7 +677,6 @@ static void init() {
 static void deinit() {
   // Destroy Window
   window_destroy(s_main_window);
-  //persist_write_int(KEY_STEPSGOAL, stepgoal);
 }
 
 int main(void) {
