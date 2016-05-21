@@ -33,10 +33,19 @@ static Layer *battery_layer;
 static BitmapLayer *s_background_layer;
 static GBitmap *s_background_bitmap;
 
+static BitmapLayer *enemy_layer;
+static GBitmap *enemy_bitmap;
+
+static BitmapLayer *weapon_layer;
+static GBitmap *weapon_bitmap;
+
+static BitmapLayer *ui_layer;
+static GBitmap *ui_bitmap;
+
 static BitmapLayer *weather_layer;
 static GBitmap *weather_bitmap = NULL;
 
-int hero = 2;
+int hero = 3;
 int current_frame, starting_frame;
 int ending_frame;
 int delay;//delay between each frame is in milliseconds
@@ -74,20 +83,21 @@ static const uint32_t LIFE_ICONS[] = {
   RESOURCE_ID_100, 
 };
 
-#define TOTAL_KIRBY 2
-static GBitmap *kirby_images[TOTAL_KIRBY];
-static BitmapLayer *kirby_layers[TOTAL_KIRBY];
+#define TOTAL_HERO 2
+static GBitmap *hero_images[TOTAL_HERO];
+static BitmapLayer *hero_layers[TOTAL_HERO];
 
 const int animation_frames[] = {  
-RESOURCE_ID_Eli1,
-RESOURCE_ID_Eli2,
-RESOURCE_ID_Eli3,
-RESOURCE_ID_Eli4,
-RESOURCE_ID_Eli5,
-RESOURCE_ID_Eli6,
-RESOURCE_ID_Eli7,
-RESOURCE_ID_Eli8,
-RESOURCE_ID_Eli9,
+RESOURCE_ID_Eli00,
+RESOURCE_ID_Eli01,
+RESOURCE_ID_Eli02,
+RESOURCE_ID_Eli03,
+RESOURCE_ID_Eli04,
+RESOURCE_ID_Eli05,
+RESOURCE_ID_Eli06,
+RESOURCE_ID_Eli07,
+RESOURCE_ID_Eli08,
+RESOURCE_ID_Eli09,
 RESOURCE_ID_Eli10,
 RESOURCE_ID_Eli11,
 RESOURCE_ID_Eli12,
@@ -148,9 +158,14 @@ RESOURCE_ID_Eli66,
 RESOURCE_ID_Eli67,
 RESOURCE_ID_Eli68,
 RESOURCE_ID_Eli69,
-RESOURCE_ID_Eli70, //69
+RESOURCE_ID_Eli70,
+RESOURCE_ID_Eli71,
+RESOURCE_ID_Eli72,
+RESOURCE_ID_Eli73,
+RESOURCE_ID_Eli74,
+RESOURCE_ID_Eli75, //76
 
-RESOURCE_ID_LYN00, //70
+RESOURCE_ID_LYN00, //77
 RESOURCE_ID_LYN01,
 RESOURCE_ID_LYN02,
 RESOURCE_ID_LYN03,
@@ -209,9 +224,15 @@ RESOURCE_ID_LYN55,
 RESOURCE_ID_LYN56,
 RESOURCE_ID_LYN57,
 RESOURCE_ID_LYN58,
-RESOURCE_ID_LYN59, //129
+RESOURCE_ID_LYN59,
+RESOURCE_ID_LYN60,
+RESOURCE_ID_LYN61,
+RESOURCE_ID_LYN62,
+RESOURCE_ID_LYN63,
+RESOURCE_ID_LYN64,
+RESOURCE_ID_LYN65, //142
   
-RESOURCE_ID_Hector00, //130
+RESOURCE_ID_Hector00, //143
 RESOURCE_ID_Hector01,
 RESOURCE_ID_Hector02,
 RESOURCE_ID_Hector03,
@@ -244,7 +265,13 @@ RESOURCE_ID_Hector29,
 RESOURCE_ID_Hector30,
 RESOURCE_ID_Hector31,
 RESOURCE_ID_Hector32,
-RESOURCE_ID_Hector33, //163
+RESOURCE_ID_Hector33,
+RESOURCE_ID_Hector34,
+RESOURCE_ID_Hector35,
+RESOURCE_ID_Hector36,
+RESOURCE_ID_Hector37,
+RESOURCE_ID_Hector38,
+RESOURCE_ID_Hector39,//182
 };
 
 
@@ -254,19 +281,23 @@ static void timer_handler(void *context)
     if(current_frame == ending_frame){
      current_frame = starting_frame;
     }
-    if (kirby_images[1] != NULL) {
-      gbitmap_destroy(kirby_images[1]);
-      kirby_images[1] = NULL;
+    if (hero_images[1] != NULL) {
+      gbitmap_destroy(hero_images[1]);
+      hero_images[1] = NULL;
     }
     
-    kirby_images[1] = gbitmap_create_with_resource(animation_frames[current_frame]);
+    hero_images[1] = gbitmap_create_with_resource(animation_frames[current_frame]);
     
-    bitmap_layer_set_bitmap(kirby_layers[1], kirby_images[1]);
-    layer_mark_dirty(bitmap_layer_get_layer(kirby_layers[1]));
+    bitmap_layer_set_bitmap(hero_layers[1], hero_images[1]);
+    layer_mark_dirty(bitmap_layer_get_layer(hero_layers[1]));
+    
+    if(current_frame == 43){vibes_short_pulse();}
+    else if(current_frame == 118){vibes_short_pulse();}
+    else if(current_frame == 174){vibes_short_pulse();}
 
     current_frame++;
     app_timer_register(delay, timer_handler, NULL);
-  } 
+  }
 }
 
 static void load_sequence() 
@@ -274,18 +305,18 @@ static void load_sequence()
   
   if(hero == 1){
   current_frame = 0;
-  ending_frame = 70;
-  delay = 77;
+  ending_frame = 76;
+  delay = 100;
   }
   else if(hero == 2){
-  current_frame = 70;
-  ending_frame = 130;
-  delay = 77;
+  current_frame = 77;
+  ending_frame = 142;
+  delay = 100;
   }
   else if(hero == 3){
-  current_frame = 130;
-  ending_frame = 164;
-  delay = 77; 
+  current_frame = 143;
+  ending_frame = 182;
+  delay = 100; 
   }
   starting_frame = current_frame;
   app_timer_register(1, timer_handler, NULL);
@@ -308,11 +339,11 @@ GBitmap *old_image = *bmp_image;
   }
 }
 
-static void load_kirby_layer()
+static void load_hero_layer()
 { 
-       if(hero == 1) { set_container_image(&kirby_images[1], kirby_layers[1], animation_frames[0], GPoint(20,20) );}
-  else if(hero == 2) { set_container_image(&kirby_images[1], kirby_layers[1], animation_frames[0], GPoint(-16,20) );}
-  else if(hero == 3) { set_container_image(&kirby_images[1], kirby_layers[1], animation_frames[0], GPoint(20,20) );}
+       if(hero == 1) { set_container_image(&hero_images[1], hero_layers[1], animation_frames[0], GPoint(0,0) );}
+  else if(hero == 2) { set_container_image(&hero_images[1], hero_layers[1], animation_frames[77], GPoint(0,0) );}
+  else if(hero == 3) { set_container_image(&hero_images[1], hero_layers[1], animation_frames[143], GPoint(0,0) );}
 }
 
 static void update_time() {
@@ -523,15 +554,19 @@ static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   
-  // Create GBitmap
-  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
-
-  // Create BitmapLayer to display the GBitmap
-  s_background_layer = bitmap_layer_create(bounds);
-
-  // Set the bitmap onto the layer and add to the window
+  //Background
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_Night);
+  s_background_layer = bitmap_layer_create(GRect(0, 0, 144, 122));
   bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
   layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
+  
+  //Enemy
+  enemy_bitmap = gbitmap_create_with_resource(RESOURCE_ID_Enemy);
+  enemy_layer = bitmap_layer_create(GRect(30,81, 36, 33));
+  bitmap_layer_set_bitmap(enemy_layer, enemy_bitmap);
+  layer_add_child(window_layer, bitmap_layer_get_layer(enemy_layer));
+  bitmap_layer_set_compositing_mode(enemy_layer, GCompOpSet);
+  
 
   // Create the TextLayer with specific bounds
   s_time_layer = text_layer_create(GRect(0, PBL_IF_ROUND_ELSE(58, 25), bounds.size.w, 50));
@@ -592,14 +627,28 @@ static void main_window_load(Window *window) {
  
   GRect dummy_frame = { {0, 0}, {0, 0} };
   
-  for (int i = 0; i < TOTAL_KIRBY; ++i) {
-   	kirby_layers[i] = bitmap_layer_create(dummy_frame);
-   	layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(kirby_layers[i]));
-    bitmap_layer_set_compositing_mode(kirby_layers[i], GCompOpSet);
+  for (int i = 0; i < TOTAL_HERO; ++i) {
+   	hero_layers[i] = bitmap_layer_create(dummy_frame);
+   	layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(hero_layers[i]));
+    bitmap_layer_set_compositing_mode(hero_layers[i], GCompOpSet);
   }
    
   load_sequence();
-  load_kirby_layer();
+  load_hero_layer();
+  
+  //UI
+  ui_bitmap = gbitmap_create_with_resource(RESOURCE_ID_UI);
+  ui_layer = bitmap_layer_create(bounds);
+  bitmap_layer_set_bitmap(ui_layer, ui_bitmap);
+  layer_add_child(window_layer, bitmap_layer_get_layer(ui_layer));
+  bitmap_layer_set_compositing_mode(ui_layer, GCompOpSet);
+  
+  //Weapon
+  weapon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_Weapons1);
+  weapon_layer = bitmap_layer_create(GRect(41, 123, 60, 16));
+  bitmap_layer_set_bitmap(weapon_layer, weapon_bitmap);
+  layer_add_child(window_layer, bitmap_layer_get_layer(weapon_layer));
+  bitmap_layer_set_compositing_mode(weapon_layer, GCompOpSet);
 
   // Create GFont
   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_Solid_40));
@@ -649,11 +698,14 @@ static void main_window_unload(Window *window) {
 
   // Destroy BitmapLayer
   bitmap_layer_destroy(s_background_layer);
+  bitmap_layer_destroy(ui_layer);
+  bitmap_layer_destroy(enemy_layer);
+  bitmap_layer_destroy(weapon_layer);
   
-  for (int i = 0; i < TOTAL_KIRBY; i++) {
-   	layer_remove_from_parent(bitmap_layer_get_layer(kirby_layers[i]));
-   	gbitmap_destroy(kirby_images[i]);
-   	bitmap_layer_destroy(kirby_layers[i]); 
+  for (int i = 0; i < TOTAL_HERO; i++) {
+   	layer_remove_from_parent(bitmap_layer_get_layer(hero_layers[i]));
+   	gbitmap_destroy(hero_images[i]);
+   	bitmap_layer_destroy(hero_layers[i]); 
   }
   
   for (int i = 0; i < TOTAL_LIFE; i++) {
