@@ -36,7 +36,7 @@ static GBitmap *s_background_bitmap;
 static BitmapLayer *weather_layer;
 static GBitmap *weather_bitmap = NULL;
 
-
+int hero = 2;
 int current_frame, starting_frame;
 int ending_frame;
 int delay;//delay between each frame is in milliseconds
@@ -210,6 +210,41 @@ RESOURCE_ID_LYN56,
 RESOURCE_ID_LYN57,
 RESOURCE_ID_LYN58,
 RESOURCE_ID_LYN59, //129
+  
+RESOURCE_ID_Hector00, //130
+RESOURCE_ID_Hector01,
+RESOURCE_ID_Hector02,
+RESOURCE_ID_Hector03,
+RESOURCE_ID_Hector04,
+RESOURCE_ID_Hector05,
+RESOURCE_ID_Hector06,
+RESOURCE_ID_Hector07,
+RESOURCE_ID_Hector08,
+RESOURCE_ID_Hector09,
+RESOURCE_ID_Hector10,
+RESOURCE_ID_Hector11,
+RESOURCE_ID_Hector12,
+RESOURCE_ID_Hector13,
+RESOURCE_ID_Hector14,
+RESOURCE_ID_Hector15,
+RESOURCE_ID_Hector16,
+RESOURCE_ID_Hector17,
+RESOURCE_ID_Hector18,
+RESOURCE_ID_Hector19,
+RESOURCE_ID_Hector20,
+RESOURCE_ID_Hector21,
+RESOURCE_ID_Hector22,
+RESOURCE_ID_Hector23,
+RESOURCE_ID_Hector24,
+RESOURCE_ID_Hector25,
+RESOURCE_ID_Hector26,
+RESOURCE_ID_Hector27,
+RESOURCE_ID_Hector28,
+RESOURCE_ID_Hector29,
+RESOURCE_ID_Hector30,
+RESOURCE_ID_Hector31,
+RESOURCE_ID_Hector32,
+RESOURCE_ID_Hector33, //163
 };
 
 
@@ -236,9 +271,22 @@ static void timer_handler(void *context)
 
 static void load_sequence() 
 {
+  
+  if(hero == 1){
   current_frame = 0;
   ending_frame = 70;
   delay = 77;
+  }
+  else if(hero == 2){
+  current_frame = 70;
+  ending_frame = 130;
+  delay = 77;
+  }
+  else if(hero == 3){
+  current_frame = 130;
+  ending_frame = 164;
+  delay = 77; 
+  }
   starting_frame = current_frame;
   app_timer_register(1, timer_handler, NULL);
 }
@@ -262,7 +310,9 @@ GBitmap *old_image = *bmp_image;
 
 static void load_kirby_layer()
 { 
-   set_container_image(&kirby_images[1], kirby_layers[1], animation_frames[0], GPoint(20,20) );
+       if(hero == 1) { set_container_image(&kirby_images[1], kirby_layers[1], animation_frames[0], GPoint(20,20) );}
+  else if(hero == 2) { set_container_image(&kirby_images[1], kirby_layers[1], animation_frames[0], GPoint(-16,20) );}
+  else if(hero == 3) { set_container_image(&kirby_images[1], kirby_layers[1], animation_frames[0], GPoint(20,20) );}
 }
 
 static void update_time() {
