@@ -1127,6 +1127,114 @@
                 "type": "png"
             },
             {
+"file": "images/LYN60.png",
+"name": "LYN60",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/LYN61.png",
+"name": "LYN61",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/LYN62.png",
+"name": "LYN62",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/LYN63.png",
+"name": "LYN63",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/LYN64.png",
+"name": "LYN64",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/LYN65.png",
+"name": "LYN65",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Eliwood71.png",
+"name": "Eli71",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Eliwood72.png",
+"name": "Eli72",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Eliwood73.png",
+"name": "Eli73",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Eliwood74.png",
+"name": "Eli74",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Eliwood75.png",
+"name": "Eli75",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Eliwood76.png",
+"name": "Eli76",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Hector34.png",
+"name": "Hector34",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Hector35.png",
+"name": "Hector35",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Hector36.png",
+"name": "Hector36",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Hector37.png",
+"name": "Hector37",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Hector38.png",
+"name": "Hector38",
+"targetPlatforms": null,
+"type": "png"
+},
+{
+"file": "images/Hector39.png",
+"name": "Hector39",
+"targetPlatforms": null,
+"type": "png"
+},
+            {
                 "file": "fonts/Solid.ttf",
                 "name": "Solid_40",
                 "targetPlatforms": null,
