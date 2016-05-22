@@ -5,8 +5,12 @@
 #define KEY_SCALE 3
 #define KEY_SCALE_OPTION 4
 #define KEY_STEPSGOAL 5
+#define KEY_HERO 6
+#define KEY_VIBRATE 7
 
 static Window *s_main_window;
+
+static bool initiate_watchface = true;
 
 static TextLayer *month_layer;
 static TextLayer *day_layer;
@@ -36,27 +40,20 @@ static GBitmap *s_background_bitmap;
 static BitmapLayer *enemy_layer;
 static GBitmap *enemy_bitmap;
 
-static BitmapLayer *weapon_layer;
-static GBitmap *weapon_bitmap;
-
 static BitmapLayer *ui_layer;
 static GBitmap *ui_bitmap;
 
 static BitmapLayer *weather_layer;
 static GBitmap *weather_bitmap = NULL;
 
-int hero = 3;
+static BitmapLayer *item_layer;
+static GBitmap *item_bitmap = NULL;
+
+int vibrate = 1;
+int hero = 1;
 int current_frame, starting_frame;
 int ending_frame;
 int delay;//delay between each frame is in milliseconds
-
-
-#define TOTAL_LIFE 11
-static GBitmap *life_images[TOTAL_LIFE];
-static BitmapLayer *life_layers[TOTAL_LIFE];
-
-static GBitmap *step_images[TOTAL_LIFE];
-static BitmapLayer *step_layers[TOTAL_LIFE];
 
 static const uint32_t WEATHER_ICONS[] = {
   RESOURCE_ID_ClearDay, //0
@@ -68,6 +65,13 @@ static const uint32_t WEATHER_ICONS[] = {
   RESOURCE_ID_Storm, //6
   RESOURCE_ID_Tornado, //7
 };
+
+#define TOTAL_LIFE 11
+static GBitmap *life_images[TOTAL_LIFE];
+static BitmapLayer *life_layers[TOTAL_LIFE];
+
+static GBitmap *step_images[TOTAL_LIFE];
+static BitmapLayer *step_layers[TOTAL_LIFE];
 
 static const uint32_t LIFE_ICONS[] = {
   RESOURCE_ID_0,
@@ -82,6 +86,13 @@ static const uint32_t LIFE_ICONS[] = {
   RESOURCE_ID_90,  
   RESOURCE_ID_100, 
 };
+
+static const uint32_t ITEM_ICONS[] = {
+  RESOURCE_ID_Weapons1,
+  RESOURCE_ID_Weapons2,
+  RESOURCE_ID_Weapons3,
+};
+
 
 #define TOTAL_HERO 2
 static GBitmap *hero_images[TOTAL_HERO];
@@ -232,7 +243,7 @@ RESOURCE_ID_LYN63,
 RESOURCE_ID_LYN64,
 RESOURCE_ID_LYN65, //142
   
-RESOURCE_ID_Hector00, //143
+RESOURCE_ID_Hector00, //142
 RESOURCE_ID_Hector01,
 RESOURCE_ID_Hector02,
 RESOURCE_ID_Hector03,
@@ -291,9 +302,13 @@ static void timer_handler(void *context)
     bitmap_layer_set_bitmap(hero_layers[1], hero_images[1]);
     layer_mark_dirty(bitmap_layer_get_layer(hero_layers[1]));
     
+    vibrate = persist_read_int(KEY_VIBRATE);
+    
+    if(vibrate == 1){
     if(current_frame == 43){vibes_short_pulse();}
     else if(current_frame == 118){vibes_short_pulse();}
     else if(current_frame == 174){vibes_short_pulse();}
+    }
 
     current_frame++;
     app_timer_register(delay, timer_handler, NULL);
@@ -302,7 +317,7 @@ static void timer_handler(void *context)
 
 static void load_sequence() 
 {
-  
+  APP_LOG(APP_LOG_LEVEL_INFO, "load_sequence: %d", hero);
   if(hero == 1){
   current_frame = 0;
   ending_frame = 76;
@@ -341,9 +356,24 @@ GBitmap *old_image = *bmp_image;
 
 static void load_hero_layer()
 { 
-       if(hero == 1) { set_container_image(&hero_images[1], hero_layers[1], animation_frames[0], GPoint(0,0) );}
-  else if(hero == 2) { set_container_image(&hero_images[1], hero_layers[1], animation_frames[77], GPoint(0,0) );}
-  else if(hero == 3) { set_container_image(&hero_images[1], hero_layers[1], animation_frames[143], GPoint(0,0) );}
+ hero = persist_read_int(KEY_HERO);
+ APP_LOG(APP_LOG_LEVEL_INFO, "load_hero_layer: %d", hero);
+  
+ if (item_bitmap) {
+        gbitmap_destroy(item_bitmap);
+      }
+  
+ if(hero == 1) { set_container_image(&hero_images[1], hero_layers[1], animation_frames[0], GPoint(0,0) );
+                     item_bitmap = gbitmap_create_with_resource(ITEM_ICONS[0]);
+ }
+   else if(hero == 2) { set_container_image(&hero_images[1], hero_layers[1], animation_frames[77], GPoint(0,0) );
+                     item_bitmap = gbitmap_create_with_resource(ITEM_ICONS[1]);
+   }
+   else if(hero == 3) { set_container_image(&hero_images[1], hero_layers[1], animation_frames[143], GPoint(0,0) );
+                     item_bitmap = gbitmap_create_with_resource(ITEM_ICONS[2]);
+   }
+
+  bitmap_layer_set_bitmap(item_layer, item_bitmap);
 }
 
 static void update_time() {
@@ -376,15 +406,64 @@ static void update_time() {
   text_layer_set_text(month_layer, month_text);
 }
 
+static void handle_bluetooth(bool connected) 
+{	
+if (connected) {
+
+		if (!initiate_watchface) {//watch becomes connected after watchface is already loaded
+			vibes_double_pulse();
+      DictionaryIterator *iter;
+      app_message_outbox_begin(&iter);
+      dict_write_uint8(iter, 0, 0);
+      app_message_outbox_send();
+		}
+	}
+	else {
+
+		if (!initiate_watchface) {//becomes disconnected while watchface is already loaded     
+			vibes_enqueue_custom_pattern( (VibePattern) {
+   				.durations = (uint32_t []) {100, 100, 100, 100, 100},
+   				.num_segments = 5
+			} );
+		}	
+	}
+}
+
+static void background(struct tm *current_time) 
+{
+if (current_time->tm_hour >= 6 && current_time->tm_hour < 18){
+    if (s_background_bitmap) {
+        gbitmap_destroy(s_background_bitmap);
+      }
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_Day);
+  bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
+  }
+  else if (current_time->tm_hour >= 18 || current_time->tm_hour < 6){
+    if (s_background_bitmap) {
+        gbitmap_destroy(s_background_bitmap);
+      }
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_Night);
+  bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
+  }
+}
+
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
+  
+  if(((tick_time->tm_min == 0) &&  tick_time->tm_sec == 0)){
+      if (hero_images[1] != NULL) {
+      gbitmap_destroy(hero_images[1]);
+      hero_images[1] = NULL;
+      }
+      load_sequence();
+  }
   
   if(tick_time->tm_min % 30 == 0) {
     DictionaryIterator *iter;
     app_message_outbox_begin(&iter);
     dict_write_uint8(iter, 0, 0);
     app_message_outbox_send();
-    }
+  }
 }
 
 static void handle_health(HealthEventType event, void *context) 
@@ -472,9 +551,31 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       case KEY_STEPSGOAL:
       
       stepgoal = t->value->int16;
-		  APP_LOG(APP_LOG_LEVEL_INFO, "stepgoal is %d", stepgoal);
+		  //APP_LOG(APP_LOG_LEVEL_INFO, "stepgoal is %d", stepgoal);
 		  persist_write_int(KEY_STEPSGOAL, stepgoal);   
       break;
+      
+      case KEY_HERO:
+      
+      hero = atoi( t->value->cstring );
+      persist_write_int(KEY_HERO, hero);
+      
+      APP_LOG(APP_LOG_LEVEL_INFO, "KEY HERO Hero: %d", hero);
+      if (hero_images[1] != NULL) {
+      gbitmap_destroy(hero_images[1]);
+      hero_images[1] = NULL;
+      }
+      load_hero_layer();
+      load_sequence();
+      break;
+      
+      case KEY_VIBRATE:
+      
+      vibrate = atoi( t->value->cstring );
+		  //APP_LOG(APP_LOG_LEVEL_INFO, "Vibrate is %d", vibrate);
+		  persist_write_int(KEY_VIBRATE, vibrate); 
+      break;
+      
   }
 
     t = dict_read_next(iterator);
@@ -554,15 +655,15 @@ static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   
+  hero = persist_read_int(KEY_HERO);
+  
   //Background
-  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_Night);
   s_background_layer = bitmap_layer_create(GRect(0, 0, 144, 122));
-  bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
   layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
   
   //Enemy
   enemy_bitmap = gbitmap_create_with_resource(RESOURCE_ID_Enemy);
-  enemy_layer = bitmap_layer_create(GRect(30,81, 36, 33));
+  enemy_layer = bitmap_layer_create(GRect(25,81, 36, 33));
   bitmap_layer_set_bitmap(enemy_layer, enemy_bitmap);
   layer_add_child(window_layer, bitmap_layer_get_layer(enemy_layer));
   bitmap_layer_set_compositing_mode(enemy_layer, GCompOpSet);
@@ -623,7 +724,6 @@ static void main_window_load(Window *window) {
   text_layer_set_background_color(step_layer, GColorClear);
   text_layer_set_text_color(step_layer, GColorWhite);
   text_layer_set_text_alignment(step_layer, GTextAlignmentCenter);
-
  
   GRect dummy_frame = { {0, 0}, {0, 0} };
   
@@ -643,12 +743,10 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, bitmap_layer_get_layer(ui_layer));
   bitmap_layer_set_compositing_mode(ui_layer, GCompOpSet);
   
-  //Weapon
-  weapon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_Weapons1);
-  weapon_layer = bitmap_layer_create(GRect(41, 123, 60, 16));
-  bitmap_layer_set_bitmap(weapon_layer, weapon_bitmap);
-  layer_add_child(window_layer, bitmap_layer_get_layer(weapon_layer));
-  bitmap_layer_set_compositing_mode(weapon_layer, GCompOpSet);
+  //Weapons
+  item_layer = bitmap_layer_create(GRect(41, 123, 60, 16));
+  bitmap_layer_set_compositing_mode(item_layer, GCompOpSet);
+  bitmap_layer_set_bitmap(item_layer, item_bitmap);
 
   // Create GFont
   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_Solid_40));
@@ -671,6 +769,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(day_layer));
   layer_add_child(window_layer, text_layer_get_layer(temperature_layer));
   layer_add_child(window_layer, bitmap_layer_get_layer(weather_layer));
+  layer_add_child(window_layer, bitmap_layer_get_layer(item_layer));
   layer_add_child(window_layer, battery_layer);
   layer_add_child(window_layer, step_bar);
   layer_add_child(window_layer, text_layer_get_layer(step_layer));
@@ -695,12 +794,16 @@ static void main_window_unload(Window *window) {
   // Destroy GBitmap
   gbitmap_destroy(s_background_bitmap);
   gbitmap_destroy(weather_bitmap);
+  gbitmap_destroy(item_bitmap);
+  gbitmap_destroy(ui_bitmap);
+  gbitmap_destroy(enemy_bitmap);
 
   // Destroy BitmapLayer
   bitmap_layer_destroy(s_background_layer);
+  bitmap_layer_destroy(weather_layer);
+  bitmap_layer_destroy(item_layer);
   bitmap_layer_destroy(ui_layer);
   bitmap_layer_destroy(enemy_layer);
-  bitmap_layer_destroy(weapon_layer);
   
   for (int i = 0; i < TOTAL_HERO; i++) {
    	layer_remove_from_parent(bitmap_layer_get_layer(hero_layers[i]));
@@ -719,6 +822,7 @@ static void main_window_unload(Window *window) {
    	gbitmap_destroy(step_images[i]);
    	bitmap_layer_destroy(step_layers[i]); 
   }
+  
 }
 
 
@@ -726,22 +830,33 @@ static void init() {
   // Create main Window element and assign to pointer
   s_main_window = window_create();
   
+  time_t now = time(NULL);
+ 	struct tm *tick_time = localtime(&now);
+  
+  // Register with TickTimerService
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  
   Layer *window_layer = window_get_root_layer(s_main_window);
-
-  // Set the background color
-  window_set_background_color(s_main_window, GColorBlack);
 
   // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
     .unload = main_window_unload
   });
+  
+  initiate_watchface = false;
 
+  hero = persist_read_int(KEY_HERO);
   
   // Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true);
   
   health_service_events_subscribe(handle_health, NULL);
+  
+  handle_bluetooth(bluetooth_connection_service_peek());
+  bluetooth_connection_service_subscribe(&handle_bluetooth);
+  
+  background(tick_time);
   
   // Register for battery level updates
   battery_state_service_subscribe(battery_callback);
@@ -763,9 +878,6 @@ static void init() {
   // Make sure the time is displayed from the start
   update_time();
 
-  // Register with TickTimerService
-  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-  
   stepgoal = persist_read_int(KEY_STEPSGOAL);
   
   app_message_register_inbox_received(inbox_received_callback);
@@ -779,6 +891,8 @@ static void init() {
 static void deinit() {
   // Destroy Window
   window_destroy(s_main_window);
+  bluetooth_connection_service_unsubscribe();
+  bluetooth_connection_service_peek();
 }
 
 int main(void) {

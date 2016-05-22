@@ -1,21 +1,30 @@
 {
     "appKeys": {
+        "KEY_HERO": 6,
         "KEY_ICON": 2,
         "KEY_SCALE": 3,
         "KEY_STEPSGOAL": 5,
-        "KEY_TEMPERATURE": 1
+        "KEY_TEMPERATURE": 1,
+        "KEY_VIBRATE": 7
     },
     "capabilities": [
         "location",
         "configurable",
         "health"
     ],
-    "companyName": "Pebble",
+    "companyName": "Game Time",
     "enableMultiJS": false,
-    "longName": "Tutorial-2-2",
+    "longName": "Fire Emblem GT",
     "projectType": "native",
     "resources": {
         "media": [
+            {
+                "file": "images/Menu.png",
+                "menuIcon": true,
+                "name": "MENU",
+                "targetPlatforms": null,
+                "type": "png"
+            },
             {
                 "file": "images/Weapons3.png",
                 "name": "Weapons3",
@@ -1279,7 +1288,7 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "Tutorial-2-2",
+    "shortName": "Fire Emblem GT",
     "targetPlatforms": [
         "basalt"
     ],

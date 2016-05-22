@@ -154,7 +154,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
   // Send to the watchapp via AppMessage
 var dict = {
   "KEY_SCALE" : configData.scale,
-  "KEY_STEPSGOAL" : configData.stepsgoal
+  "KEY_STEPSGOAL" : configData.stepsgoal,
+  "KEY_HERO" : configData.hero,
+  "KEY_VIBRATE" : configData.vibrate
 };
 
   // Send to the watchapp
